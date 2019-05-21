@@ -1,0 +1,59 @@
+Tonight's challenge is a remote daemon with ASLR enabled.
+
+ASLR (Address space layout randomization) is a modern OS protection
+mechanism that randomly arranges the address space of a process.
+This makes it difficult to predict target addresses - for example,
+the address of each function will be different each time
+you run the program.
+
+The vulnerabilities are nothing new, you have all the building blocks
+required to defeat this challenge. The goal is the execution of the
+admin_shell function in order to give you a shell on the remote machine.
+
+You should think of it in two steps: first, you must figure out where
+the address of admin_shell is. See if you can find a bug that will leak
+memory to you and see if you can calculate where admin_shell is based
+off the leaked memory.
+
+Then you must redirect control of execution to the admin_shell function.
+By this stage you are pretty good at that, so I don't think you need any
+hints.
+
+This week, code and binaries are available in the usual place and you
+may use the regular labs server to test your exploit. However the target
+is running on a different machine and your code must connect and perform
+the required actions to get to the vulnerable portion of the code.
+
+You will have to do a bit of network programming for this one.
+The flag is in /flags/0x11 on the remote machine.
+
+The target is at the IP address 130.102.96.45 and the vulnerable
+program is running on port 31337.
+
+If you want to run it locally, you will need to use the following gcc
+arguments:
+
+gcc 0x11.c -o 0x11 -m32 -g -fno-stack-protector \
+    -mpreferred-stack-boundary=2 -pie -fPIC -fPIE
+
+Here is a basic example using netcat:
+
+$ nc aslr.deadbeefsociety.org 31337
+************************************************
+* AUTHORIZED ACCESS ONLY. PLEASE AUTHENTICATE.
+*************************************************
+username: Tyrell
+password: WhyDidYouDoIt
+Welcome Tyrell.
+> help
+Available commands:
+gimme
+exit
+help
+> exit
+THANK YOU FOR USING THIS VERY IMPORTANT SOFTWARE
+$
+
+The daemon is run using inetd(8), meaning you can test the binary locally
+in your normal way and it should work against the remote daemon. inetd(8)
+just handles connecting the network socket with the program.
